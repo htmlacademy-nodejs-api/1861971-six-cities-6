@@ -1,0 +1,104 @@
+{
+  "dataForOffer": {
+    "user": {
+      "names": [
+        "Angelina",
+        "Glory",
+        "Nadya",
+        "Ilya",
+        "Roma"
+      ],
+      "avatarUrls": [
+        "img/1.png",
+        "img/2.png",
+        "img/3.png",
+        "img/4.png",
+        "img/5.png"
+      ],
+      "typeUsers":[
+        "обычный",
+        "pro"
+      ]
+    },
+    "rentalOffer": {
+      "titles": [
+        "Canal View Prinsengracht",
+        "Penthouse, 4-5 rooms + 5 balconies",
+        "Beautiful & luxurious apartment at great location",
+        "The Pondhouse - A Magical Place",
+        "Canal View Prinsengracht"
+      ],
+      "descriptions": [
+        "Peaceful studio in the most wanted area in town. Quiet house Near of everything. Completely renovated. Lovely neighbourhood, lot of trendy shops, restaurants and bars in a walking distance.",
+        "Relax, rejuvenate and unplug in this ultimate rustic getaway experience in the country. In our beautiful screened Pondhouse, you can gaze at the stars and listen to the sounds of nature from your cozy warm bed.",
+        "Design interior in most sympathetic area! Complitely renovated, well-equipped, cosy studio in idyllic, over 100 years old wooden house. Calm street, fast connection to center and airport.",
+        "A new spacious villa, one floor. All commodities, jacuzzi and beautiful scenery. Ideal for families or friends.",
+        "Peaceful studio in the most wanted area in town. Quiet house Near of everything. Completely renovated. Lovely neighbourhood, lot of trendy shops, restaurants and bars in a walking distance."
+      ],
+      "nameCitys": [
+        "Paris",
+        "Cologne",
+        "Brussele",
+        "Amsterdam",
+        "Hamburg",
+        "Dusseldorf"
+      ],
+      "previewImage": [
+        "https://12.react.pages.academy/static/hotel/20.jpg",
+        "https://12.react.pages.academy/static/hotel/6.jpg",
+        "https://12.react.pages.academy/static/hotel/10.jpg",
+        "https://12.react.pages.academy/static/hotel/11.jpg",
+        "https://12.react.pages.academy/static/hotel/17.jpg"
+      ],
+      "images": [
+        "https://12.react.pages.academy/static/hotel/2.jpg",
+        "https://12.react.pages.academy/static/hotel/6.jpg",
+        "https://12.react.pages.academy/static/hotel/8.jpg",
+        "https://12.react.pages.academy/static/hotel/7.jpg",
+        "https://12.react.pages.academy/static/hotel/16.jpg",
+        "https://12.react.pages.academy/static/hotel/9.jpg"
+      ],
+      "housingTypes": [
+        "apartment",
+        "house",
+        "room",
+        "hotel"
+      ],
+      "comfortsList": [
+        "Breakfast",
+        "Air conditioning",
+        "Laptop friendly workspece",
+        "Baby seat",
+        "Washer",
+        "Towels",
+        "Fridge"
+      ],
+      "location": [
+        { "name": "Paris",
+          "latitude": 48.85661,
+          "longitude": 2.351499
+        },
+        { "name":"Cologne",
+          "latitude": 50.938361,
+          "longitude": 6.959974
+        },
+        { "name": "Amsterdam",
+          "latitude": 52.37454,
+          "longitude": 4.897976
+        },
+        {"name":"Hamburg",
+          "latitude": 53.550341,
+          "longitude": 10.000654
+        },
+        { "name": "Brussele",
+          "latitude": 50.846557,
+          "longitude": 4.351697
+        },
+        { "name": "Dusseldorf",
+          "latitude": 51.225402,
+          "longitude": 6.776314
+        }
+      ]
+    }
+  }
+}

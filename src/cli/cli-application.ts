@@ -1,5 +1,6 @@
 import { AbstractCommand } from './commands/abstract-command.js';
 import { CommandParser } from './command-parser.js';
+import { COLOR_ERROR } from '../shared/const/const.js';
 
 export class CLIApplication {
   private commands: Record<string, AbstractCommand> = {};
@@ -10,7 +11,7 @@ export class CLIApplication {
       const nameKey = item.name;
 
       if(this.commands[nameKey]) {
-        throw new Error(`Command ${this.commands[nameKey]} is already registered`);
+        throw new Error(COLOR_ERROR(`Command ${this.commands[nameKey]} is already registered`));
       }
 
       acc[nameKey] = item;
@@ -25,7 +26,7 @@ export class CLIApplication {
 
   public getDefaultCommand(): AbstractCommand | never {
     if (! this.commands[this.defaultCommand]) {
-      throw new Error(`The default command (${this.defaultCommand}) is not registered.`);
+      throw new Error(COLOR_ERROR(`The default command (${this.defaultCommand}) is not registered.`));
     }
     return this.commands[this.defaultCommand];
   }

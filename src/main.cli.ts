@@ -4,7 +4,8 @@ import {
   CLIApplication,
   HelpCommand,
   VersionCommand,
-  ImportCommand
+  ImportCommand,
+  GenerateCommand
 } from './cli/index.js';
 
 function bootstrap() {
@@ -12,12 +13,10 @@ function bootstrap() {
   cliApplication.registerCommands([
     new HelpCommand(),
     new VersionCommand(),
-    new ImportCommand()
+    new ImportCommand(),
+    new GenerateCommand()
   ]);
 
-  //process.argv.push('--version');
-  //process.argv.push('--import');
-  //process.argv.push('C:/Users/User/Desktop/1861971-six-cities-6/mocks/mock-data.tsv');
   cliApplication.processCommand(process.argv);
 }
 

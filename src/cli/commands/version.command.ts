@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import chalk from 'chalk';
 import { AbstractCommand } from './abstract-command.js';
+import { getErrorMessage } from '../../shared/helpers/common.js';
+import { COLOR_ERROR, COLOR_SUCCESS } from '../../shared/const/const.js';
 
 type PackageJSONConfig = {
   version: string;
@@ -19,12 +20,12 @@ function isPackageJSONConfig(value: unknown): value is PackageJSONConfig {
 export class VersionCommand extends AbstractCommand {
   private readonly filePath = 'package.json';
 
-  private readVersion(): string {
-    const jsonContent = readFileSync(resolve(this.filePath), 'utf-8');
+  private async readVersion(): Promise<string> {
+    const jsonContent = await readFile(resolve(this.filePath), 'utf-8');
     const importedContent: unknown = JSON.parse(jsonContent);
 
     if (! isPackageJSONConfig(importedContent)) {
-      throw new Error('Failed to parse json content.');
+      throw new Error(COLOR_ERROR('Failed to parse json content.'));
     }
 
     return importedContent.version;
@@ -36,14 +37,11 @@ export class VersionCommand extends AbstractCommand {
 
   public async execute(..._parameters: string[]): Promise<void> {
     try {
-      const version = this.readVersion();
-      console.info(chalk.red.bold(`Версии приложения: ${version}`));
+      const version = await this.readVersion();
+      console.info(COLOR_SUCCESS(`Версии приложения: ${version}`));
     } catch (error: unknown) {
-      console.error(`Failed to read version from ${this.filePath}`);
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      console.error(COLOR_ERROR(`Failed to read version from ${this.filePath}`));
+      console.error(COLOR_ERROR(getErrorMessage(error)));
     }
   }
 }
