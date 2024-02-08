@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { Config } from './config.interface.js';
 import { Logger } from '../logger/index.js';
 import { RestSchema, configRestSchema } from './rest.schema.js';
-import { Component } from '../const/index.js';
+import { Component } from '../../const/index.js';
 
 @injectable()
 export class RestConfig implements Config<RestSchema> {

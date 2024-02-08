@@ -1,8 +1,8 @@
 import got from 'got';
 import { AbstractCommand } from './abstract-command.js';
 import { MockServerData } from '../../shared/types/index.js';
-import { TSVOfferGenerator } from '../../shared/offer-generator/tsv-offer-generator.js';
-import { TSVFileWriter } from '../../shared/file-writer/tsv-file-writer.js';
+import { TSVOfferGenerator } from '../../shared/libs/offer-generator/tsv-offer-generator.js';
+import { TSVFileWriter } from '../../shared/libs/file-writer/tsv-file-writer.js';
 import { getErrorMessage } from '../../shared/helpers/common.js';
 import { COLOR_SUCCESS, COLOR_ERROR } from '../../shared/const/const.js';
 
