@@ -22,7 +22,7 @@ export function createOffer(dataOffer: string): Offer {
   ] = dataOffer.replace('\n', '').split('\t');
 
   const [nameCity, latitude, longitude] = city.split(';');
-  const [name, email, avatarUrl, password, typeUsers] = host.split(';');
+  const [name, email, avatarUrl, typeUsers] = host.split(';');
 
   return({
     title,
@@ -49,7 +49,6 @@ export function createOffer(dataOffer: string): Offer {
       name,
       email,
       avatarUrl,
-      password,
       isPro: typeUsers
     },
     numberComments: Number(numberComments)

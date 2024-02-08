@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { OfferGenerator } from './offer-generator.interface.js';
-import { MockServerData } from '../types/mock-server-data.type.js';
-import { generateRandomValue, getRandomItems, getRandomItem } from '../helpers/common.js';
+import { MockServerData } from '../../types/mock-server-data.type.js';
+import { generateRandomValue, getRandomItems, getRandomItem } from '../../helpers/common.js';
 
 const FIRST_WEEK_DAY = 1;
 const LAST_WEEK_DAY = 7;
@@ -55,7 +55,6 @@ export class TSVOfferGenerator implements OfferGenerator {
       name,
       `${name}.conner@gmail.com`,
       getRandomItem<string>(user.avatarUrls),
-      `${name}&&${generateRandomValue(MIN_PRICE, MAX_PRICE)}`,
       getRandomItem<string>(user.typeUsers)
     ].join(';');
 
