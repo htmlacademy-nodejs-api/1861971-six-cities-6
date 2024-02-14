@@ -1,0 +1,376 @@
+openapi: 3.1.0
+info:
+  title: API сервер для проекта «Шесть городов».
+  description: |-
+    * Cервис для путешественников, не желающих переплачивать за аренду жилья.
+    Выбирайте один из шести популярных городов для путешествий и получайте актуальный список предложений по аренде.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 2.0.0
+tags:
+  - name: offers
+    description: Действия с объявлениями.
+  - name: users
+    description: Действия с пользователем.
+
+paths:
+  /offers/register:
+    post:
+      tags:
+        - offers
+      summary: Ресурс для создания нового предложения по аренде жилья.
+      description: Создавать предложения могут только авторизованные клиенты.
+
+      requestBody:
+        description: Информация для создания нового предложения по аренде жилья.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+
+      responses:
+        "201":
+          description: Предложение создано. Возвращает информацию о созданном предложении.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createOffer'
+
+        "400":
+          description: 'Ошибка клиента:
+                        неправильно сформированный синтаксис запроса,
+                        неверное формирование сообщения запроса или
+                        тело запроса'
+
+        "403":
+          description: Вы не авторизованны или не прошли аутентификация. Авторизуйтесь.
+
+  /offers/{offerId}/redaction:
+    put:
+      tags:
+        - offers
+      summary: Ресурс для редактирования предложения.
+      description: 'Редактировать предложения по аренде могут только авторизованные клиенты.
+                    Клиент может редактировать предложения по аренде, созданные им.
+                    При попытке отредактировать чужое предложение по аренде сервис возвращает ошибку и корректный код состояния.'
+
+      requestBody:
+        description: 'Для редактирования предложения по аренде клиент передаёт обновлённую информацию по предложению,
+                     и идентификатор редактируемого предложения.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+
+      responses:
+        "201":
+          description: 'В случае успешного обновления предложения сервис возвращает клиенту обновлённый объект предложения.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createOffer'
+
+        "400":
+          description: 'Ошибка клиента:
+                        неправильно сформированный синтаксис запроса,
+                        неверное формирование сообщения запроса или
+                        тело запроса'
+
+        "403":
+          description: Вы не авторизованны или не прошли аутентификация. Авторизуйтесь.
+
+  /offers/{offerId}/delete:
+    delete:
+      tags:
+        - offers
+      summary: Ресурс для удаления предложений по аренде.
+      description: 'Ресурс для удаления предложений по аренде. Клиент может удалять только свои предложения.
+                    {offerId} евляется id предложения'
+
+      responses:
+        "201":
+          description: 'Предложение удалено успешно.'
+          content:
+            application/json:
+              schema:
+                {Предложение с индэнтификатором id, удалено.}
+
+        "400":
+          description: 'Ошибка клиента:
+                        неправильно сформированный синтаксис запроса,
+                        неверное формирование сообщения запроса или
+                        тело запроса'
+          content:
+            application/json:
+              schema:
+                {Попытка удалить предложения другого пользователя. Измените id предложения в запрашиваемом ресурсе.}
+
+        "403":
+          description: Вы не авторизованны или не прошли аутентификация. Авторизуйтесь.
+
+  /offers/{namber}:
+    get:
+      tags:
+        - offers
+      summary: Ресурс для получения списка предложений.
+      description: 'По умолчанию ресурс возвращает не больше 60 предложений по аренде.
+                    Клиент может запросить больше предложений, указав нужное количество в параметре {namber} запроса.
+                    Параметр {namber} необязателен при запросе к ресурсу.
+                    Сервис всегда возвращает отсортированный список предложений по дате публикации (по убыванию).
+                    Список предложений по аренде могут запрашивать анонимные и авторизованные клиенты.'
+
+      responses:
+        "201":
+          description: 'В случае успешного запроса.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/createOffer'
+
+        "400":
+          description: 'Ошибка клиента:
+                        неправильно сформированный синтаксис запроса.'
+
+  /offers/{offerId}:
+    get:
+      tags:
+        - offers
+      summary: Ресурс для получения детальной информации по одному предложению.
+      description: 'Детальную информацию по предложению могут запрашивать авторизованные и анонимные клиенты.
+                   {offerId} это id предложения.'
+
+      responses:
+        "201":
+          description: 'В случае успешного запроса ворачивает обьект предложения.'
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/createOffer'
+
+        "400":
+          description: 'Ошибка клиента:
+                        неправильно сформированный синтаксис запроса.'
+
+  /users:
+    post:
+      tags:
+        - users
+      summary: Ресурс для создания нового пользователя.
+      description: 'Создавать новых пользователей могут только анонимные клиенты.'
+
+      requestBody:
+        description: 'Для создания нового пользователя клиент передаёт данные.'
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/user'
+                properties:
+                  email:
+                  description: 'Email создаваемого пользователя уникален. В системе не может быть двух пользователей с одинаковым email.'
+        required: true
+
+      responses:
+        "201":
+          description: 'В случае успешного создания пользователя сервис возвращает информацию о созданном пользователе (объект пользователя).
+                        Возвращаемая информация не содержит конфиденциальных данных (например, пароль).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+                properties:
+                  password:
+                  description: 'Возвращаемый объект пользователя не содержит пароль.'
+
+        "400":
+          description: 'Ошибка клиента:
+                        неправильно сформированный синтаксис запроса,
+                        неверное формирование сообщения запроса или
+                        тело запроса'
+
+
+components:
+  schemas:
+    createOffer:
+      type: object
+
+      properties:
+        title:
+          type: string
+          example: Penthouse, 4-5 rooms + 5 balconies
+
+        description:
+          type: string
+          example: Peaceful studio in the most wanted area in town.
+                  Quiet house Near of everything. Completely renovated.
+                  Lovely neighbourhood, lot of trendy shops, restaurants and bars in a walking distance.
+
+        data:
+          type: string
+          properties:
+          format: ISO8601
+          example: 2024-02-04T07:46:59.929Z
+
+        nameCity:
+          type: string
+          properties:
+          enum:
+            - Paris,
+            - Cologne
+            - Brussele
+            - Amsterdam
+            - Hamburg
+            - Dusseldorf
+          example: Paris
+
+        previevImage:
+          type: string
+          example: https://12.react.pages.academy/static/hotel/20.jpg
+
+        images:
+          type: string []
+          properties:
+          description: Всегда 6-ть фотографий.
+          example: https://12.react.pages.academy/static/hotel/2.jpg
+
+        isPremium:
+          properties:
+          description: Значением является true или false.
+
+        isFavorite:
+          properties:
+          description: Значением является true или false.
+
+        rating:
+          type: number
+          properties:
+          minimum: 1
+          maximum: 5
+          description: Допускаются числа с запятой (1 знак после запятой).
+
+        type:
+          type: string
+          properties:
+          example: apartment
+          enum:
+            - apartment
+            - house
+            - room
+            - hotel
+
+        bedrooms:
+          type: number
+          properties:
+          minimum: 1
+          maximum: 8
+
+        maxAdalts:
+          type: number
+          properties:
+          minimum: 1
+          maximum: 10
+
+        price:
+          type: number
+          properties:
+          minimum: 100
+          maximum: 100000
+
+        goods:
+          type: string []
+          example: Air conditioning
+          properties:
+          enum:
+            - Breakfast
+            - Air conditioning
+            - Laptop friendly workspece
+            - Baby seat
+            - Washer
+            - Towels
+            - Fridge
+
+        dataHost:
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/user'
+
+        numberComments:
+          type: number
+          properties:
+          description: Рассчитывается автоматически.
+
+        coordinates:
+          type: object
+          properties:
+          example:
+            {
+            latitude: 48.85661,
+            longitude: 2.351499
+          }
+          enum:
+            - name Paris
+              latitude 48.85661
+              longitude 2.351499
+
+            - name Cologne
+              latitude 50.938361
+              longitude 6.959974
+
+            - name Amsterdam
+              latitude 52.37454
+              longitude 4.897976
+
+            - name Hamburg
+              latitude 53.550341
+              longitude 10.000654
+
+            - name  Brussele
+              latitude 50.846557
+              longitude 4.351697
+
+            - name  Dusseldorf
+              latitude 51.225402
+              longitude 6.776314
+
+
+    user:
+      type: object
+      properties:
+
+        name:
+          type: string
+          properties:
+          example: Glory
+          minimum: 1
+          maximum: 15
+
+        email:
+          type: string
+          properties:
+          example:  Glory.conner@gmail.com
+          description: Валидный адрес электронной почты.
+
+        avatarUrl:
+          type: string
+          properties:
+          example: "img/1.png"
+          description: Изображение пользователя в формате .jpg или .png.
+          required: false
+
+        isPro:
+          type: string
+          properties:
+          example: обычный
+          enum:
+            - обычный
+            - pro
+
+        password:
+          type: string
+          properties:
+          minimum: 6
+          maximum: 12
