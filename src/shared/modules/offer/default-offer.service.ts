@@ -4,7 +4,7 @@ import { Component } from '../../const/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { DocumentType, types } from '@typegoose/typegoose';
 import { OfferEntity } from './offer.entity.js';
-import { CreateOfferDto } from './dto/create-offer.dto.js';
+import { CreateOfferDto, UpdateOfferDto } from './index.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -20,7 +20,32 @@ export class DefaultOfferService implements OfferService {
     return result;
   }
 
+  public async updateById(offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(offerId, dto, {new: true})
+      .populate('dataHost')
+      .exec();
+  }
+
+  public async deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndDelete(offerId)
+      .exec();
+  }
+
+  public async getOffersList (count: number): Promise<DocumentType<OfferEntity>[] | null> {
+    return this.offerModel
+      .find()
+      .sort({data: -1})
+      .limit(count)
+      .populate('dataHost')
+      .exec();
+  }
+
   public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel.findById(offerId).exec();
+    return this.offerModel
+      .findById(offerId)
+      .populate('dataHost')
+      .exec();
   }
 }
