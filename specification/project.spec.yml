@@ -156,7 +156,7 @@ paths:
           description: 'Ошибка клиента:
                         неправильно сформированный синтаксис запроса.'
 
-  /users:
+  /users/register:
     post:
       tags:
         - users

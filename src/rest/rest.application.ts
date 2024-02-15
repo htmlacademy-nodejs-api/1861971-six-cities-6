@@ -2,6 +2,7 @@ import {injectable, inject} from 'inversify';
 import { Logger } from '../shared/libs/logger/index.js';
 import { Config, RestSchema } from '../shared/libs/config/index.js';
 import { DatabaseClient } from '../shared/libs/database-client/index.js';
+import { OfferService } from '../shared/modules/offer/index.js';
 import { Component } from '../shared/const/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
 
@@ -11,6 +12,7 @@ export class RestApplication {
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.Config) private readonly config: Config<RestSchema>,
     @inject(Component.DatabaseClient) private readonly databaseClient: DatabaseClient,
+    @inject(Component.OfferService) private readonly offerService: OfferService
   ) {}
 
   private async initDb() {
@@ -32,5 +34,10 @@ export class RestApplication {
     this.logger.info('Init database…');
     await this.initDb();
     this.logger.info('Init database completed');
+
+    const result = await this.offerService.updateById(
+      '65c4770119b87cf3a9032f85', {goods: ['Washer', 'Towels']}
+    );
+    console.log(result);
   }
 }
