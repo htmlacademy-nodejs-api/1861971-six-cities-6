@@ -13,6 +13,13 @@ export class UpdateOfferDto {
   public maxAdalts?: number;
   public price?: number;
   public goods?: string[];
+  public dataHost?: {
+    name?: string;
+    email?: string;
+    avatarUrl?: string;
+    isPro?: string;
+    };
+
   public coordinates?: {
     latitude?: number;
     longitude?: number;

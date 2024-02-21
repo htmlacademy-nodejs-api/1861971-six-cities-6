@@ -48,7 +48,7 @@ paths:
           description: Вы не авторизованны или не прошли аутентификация. Авторизуйтесь.
 
   /offers/{offerId}/redaction:
-    put:
+    patch:
       tags:
         - offers
       summary: Ресурс для редактирования предложения.
@@ -123,7 +123,7 @@ paths:
                     Список предложений по аренде могут запрашивать анонимные и авторизованные клиенты.'
 
       responses:
-        "201":
+        "200":
           description: 'В случае успешного запроса.'
           content:
             application/json:
@@ -136,7 +136,7 @@ paths:
           description: 'Ошибка клиента:
                         неправильно сформированный синтаксис запроса.'
 
-  /offers/{offerId}:
+  /offers/{offerId}/detail:
     get:
       tags:
         - offers
