@@ -33,12 +33,12 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
       message: 'The user is image in the format can be "jpg" or "png"!'
     }
   })
-  public avatarUrl: string;
+  public avatarUrl?: string;
 
   @prop({required: true, enum: UserType})
   public isPro: string;
 
-  @prop({required: true, mixlength: 6, maxlength: 12})
+  @prop({required: true})
   private password?: string;
 
   constructor(userData: User) {
@@ -51,7 +51,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
   }
 
   public setPassword(password: string, salt: string) {
-    this.password = createSHA256(password, salt).slice(0, 11);
+    this.password = createSHA256(password, salt);
   }
 
   public getPassword() {
