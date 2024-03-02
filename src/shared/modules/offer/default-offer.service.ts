@@ -13,8 +13,11 @@ export class DefaultOfferService implements OfferService {
     @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>
   ) {}
 
-  public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
-    const result = await this.offerModel.create(dto);
+  public async create(dto: CreateOfferDto, idLocation: string): Promise<DocumentType<OfferEntity>> {
+    const result = await this.offerModel.create({
+      ...dto,
+      coordinates: idLocation
+    });
     this.logger.info(`New offer created: ${dto.title}`);
 
     return result;
@@ -23,7 +26,7 @@ export class DefaultOfferService implements OfferService {
   public async updateById(offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel
       .findByIdAndUpdate(offerId, dto, {new: true})
-      .populate('dataHost')
+      .populate(['dataHost', 'coordinates'])
       .exec();
   }
 
@@ -38,14 +41,24 @@ export class DefaultOfferService implements OfferService {
       .find()
       .sort({data: -1})
       .limit(count)
-      .populate('dataHost')
+      .populate(['dataHost', 'coordinates'])
       .exec();
   }
 
   public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel
       .findById(offerId)
-      .populate('dataHost')
+      .populate(['dataHost', 'coordinates'])
+      .exec();
+  }
+
+  public async getPremiumOffersList(count: number): Promise<DocumentType<OfferEntity>[] | null> {
+    return this.offerModel
+      .find({isPremium: true})
+      .sort({data: -1})
+      .limit(count)
       .exec();
   }
 }
+
+

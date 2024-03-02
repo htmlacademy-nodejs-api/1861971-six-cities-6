@@ -35,6 +35,7 @@ export function createOffer(dataOffer: string): Offer {
       },
       nameCity
     },
+    nameCity,
     previevImage,
     images: images.split(';'),
     isPremium: !!Number(isPremium),

@@ -16,4 +16,4 @@ export const Comforts: Record<string, ComfortList> = {
   Washer: ComfortList.Washer,
   Towels: ComfortList.Towels,
   Fridge: ComfortList.Fridge
-};
+} as const;

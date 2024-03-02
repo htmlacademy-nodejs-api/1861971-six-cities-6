@@ -1,7 +1,7 @@
 import { defaultClasses, getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
 import { UserEntity } from '../user/index.js';
+import {LocationEntity} from '../location/index.js';
 import {NameCity, HousingTypes, ComfortList} from '../../const/index.js';
-import {Location} from '../../types/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface OfferEntity extends defaultClasses.Base {}
@@ -29,16 +29,13 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true})
   public previevImage!: string;
 
-  @prop({
-    required: true,
-    type: () => [[[[[[String]]]]]]
-  })
-  public images!: string[][][][][][];
+  @prop({required: true})
+  public images!: string[];
 
   @prop({required: true})
   public isPremium!: boolean;
 
-  @prop({required: true})
+  @prop({required: true, default: false})
   public isFavorite!: boolean;
 
   @prop({required: true, min: 1, max: 5})
@@ -56,17 +53,22 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true, min: 100, max: 100000})
   public price!: number;
 
-  @prop({required: true})
+  @prop({
+    required: true,
+    enum: ComfortList,
+    type: () => String,
+  })
   public goods!: ComfortList[];
 
   @prop({required: true, ref: UserEntity})
   public dataHost!: Ref<UserEntity>;
 
-  @prop({default: 0})
+  @prop({required: true, default: 9})
   public numberComments!: number;
 
-  @prop({required: true})
-  public coordinates: Location;
+  @prop({required: true, ref: LocationEntity})
+  public coordinates!: Ref<LocationEntity>;
+
 }
 
 export const OfferModel = getModelForClass(OfferEntity);
