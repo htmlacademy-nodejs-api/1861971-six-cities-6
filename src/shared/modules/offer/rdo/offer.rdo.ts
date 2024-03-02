@@ -1,6 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import {UserRdo} from '../../user/index.js';
-import {Location} from '../../../types/index.js';
+import {LocationRdo} from '../../location/index.js';
 
 export class OfferRdo {
   @Expose()
@@ -56,5 +56,6 @@ export class OfferRdo {
   public numberComments: number;
 
   @Expose()
-  public coordinates: Location;
+  @Type(() => LocationRdo)
+  public coordinates: Set<LocationRdo>;
 }
