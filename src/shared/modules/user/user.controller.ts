@@ -1,10 +1,12 @@
 import { inject, injectable } from 'inversify';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import {
   BaseController,
   HttpMethod,
   ValidateUserEmailMiddleware,
-  ValidateDtoMiddleware
+  ValidateDtoMiddleware,
+  ValidateUserIdMiddleware,
+  UploadFileMiddleware
 } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component } from '../../const/index.js';
@@ -38,6 +40,15 @@ export class UserController extends BaseController {
         ]
       }
     );
+    this.addRoute({
+      path: '/:userId/avatar',
+      method: HttpMethod.Post,
+      handler: this.uploadAvatar,
+      middlewares: [
+        new ValidateUserIdMiddleware,
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'avatar'),
+      ]
+    });
   }
 
   public async create(
@@ -51,6 +62,12 @@ export class UserController extends BaseController {
     );
     const responseDataUser = fillDTO(UserRdo, user);
     this.created(res, responseDataUser);
+  }
+
+  public async uploadAvatar(req: Request, res: Response) {
+    this.created(res, {
+      filepath: req.file?.path
+    });
   }
 
 }
