@@ -12,3 +12,4 @@ export * from './middleware/validate-editing.middleware.js';
 export * from './middleware/validate-offer-middleware.js';
 export * from './middleware/validate-user-id.middleware.js';
 export * from './middleware/validate-dto.middleware.js';
+export * from './middleware/upload-file.middleware.js';
