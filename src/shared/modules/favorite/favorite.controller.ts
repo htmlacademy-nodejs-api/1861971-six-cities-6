@@ -6,7 +6,8 @@ import {
   HttpMethod,
   ValidateCorrectUserEmailMiddleware,
   ValidateOfferIdMiddleware,
-  ValidateOfferMiddleware
+  ValidateOfferMiddleware,
+  PrivateRouteMiddleware
 } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import {FavoriteService, FavoriteRdo} from './index.js';
@@ -15,7 +16,6 @@ import {OfferService, PremiumOfferRdo, OfferEntity} from '../offer/index.js';
 import { Component } from '../../const/index.js';
 import {fillDTO} from '../../helpers/index.js';
 
-const emailUser = 'Nadya.conner@gmail.com';
 
 @injectable()
 export class FavoriteController extends BaseController {
@@ -33,17 +33,21 @@ export class FavoriteController extends BaseController {
         path: '/list',
         method: HttpMethod.Get,
         handler: this.index,
-        middlewares: [new ValidateCorrectUserEmailMiddleware({emailUser, userService})]
+        middlewares: [
+          new PrivateRouteMiddleware(),
+          new ValidateCorrectUserEmailMiddleware({userService})
+        ]
       }
     );
 
     this.addRoute(
       {
-        path: '/:offerId/register/',
+        path: '/:offerId/register',
         method: HttpMethod.Post,
         handler: this.register,
         middlewares: [
-          new ValidateCorrectUserEmailMiddleware({emailUser, userService}),
+          new PrivateRouteMiddleware(),
+          new ValidateCorrectUserEmailMiddleware({userService}),
           new ValidateOfferIdMiddleware('offerId'),
           new ValidateOfferMiddleware({offerId: 'offerId', offerService})
         ]
@@ -52,11 +56,12 @@ export class FavoriteController extends BaseController {
 
     this.addRoute(
       {
-        path: '/:offerId/delete/',
+        path: '/:offerId/delete',
         method: HttpMethod.Delete,
         handler: this.delete,
         middlewares: [
-          new ValidateCorrectUserEmailMiddleware({emailUser, userService}),
+          new PrivateRouteMiddleware(),
+          new ValidateCorrectUserEmailMiddleware({userService}),
           new ValidateOfferIdMiddleware('offerId'),
           new ValidateOfferMiddleware({offerId: 'offerId', offerService})
         ]
@@ -64,27 +69,32 @@ export class FavoriteController extends BaseController {
     );
   }
 
-  public async index(_req: Request, res: Response,): Promise<void> {
+  public async index({tokenPayload: {email}}: Request, res: Response,): Promise<void> {
     const favoriteOfferList: DocumentType<OfferEntity>[] = [];
 
-    const favoriteOfferIdList = await this.favoriteService.findByEmail(emailUser);
+    const favoriteOfferIdList = await this.favoriteService.findByEmail(email);
 
     if(!favoriteOfferIdList) {
       this.ok(res, {message: 'The list is clear.'});
       return;
     }
 
-    favoriteOfferIdList.forEach(async (index) => {
-      const favoriteOffer = await this.offerService.findById(index) as DocumentType<OfferEntity>;
+    favoriteOfferIdList.forEach(async (currentValue, _index, array) => {
+      const favoriteOffer = await this.offerService.findById(currentValue) as DocumentType<OfferEntity>;
       favoriteOfferList.push(favoriteOffer);
-    });
 
-    const responseData = fillDTO(PremiumOfferRdo, favoriteOfferList);
-    this.ok(res, responseData);
+      if(favoriteOfferList.length - 1 === array.length - 1) {
+        const responseData = fillDTO(PremiumOfferRdo, favoriteOfferList);
+        this.ok(res, responseData);
+      }
+    });
   }
 
-  public async register({params: {offerId}}: Request, res: Response,): Promise<void> {
-    const favoriteOffer = await this.favoriteService.create({offer: offerId, emailUser});
+  public async register(
+    {tokenPayload: {email}, params: {offerId}}: Request,
+    res: Response
+  ): Promise<void> {
+    const favoriteOffer = await this.favoriteService.create({offer: offerId, email});
 
     if(typeof favoriteOffer === 'string'){
       this.ok(res, {message: `Offer with the identifier ${offerId} exists`});
@@ -97,8 +107,8 @@ export class FavoriteController extends BaseController {
     this.created(res, responseData);
   }
 
-  public async delete({params: {offerId}}: Request, res: Response,): Promise<void> {
-    const favoriteOffer = await this.favoriteService.deleteById(offerId, emailUser);
+  public async delete({tokenPayload: {email}, params: {offerId}}: Request, res: Response,): Promise<void> {
+    const favoriteOffer = await this.favoriteService.deleteById(offerId, email);
 
     if(!favoriteOffer) {
       this.ok(res, {message: `Offer with the identifier ${offerId} can't be deleted because it's not in favorites.`});
@@ -107,7 +117,7 @@ export class FavoriteController extends BaseController {
 
     await this.offerService.updateById(offerId, {isFavorite: false});
 
-    this.noContent(res, {message: `Offer this identifier ${offerId} to delete.`});
+    this.noContent(res, {message: `Offer this identifier ${offerId} to delete from favorites.`});
   }
 
 }

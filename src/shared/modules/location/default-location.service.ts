@@ -1,5 +1,4 @@
 import { types } from '@typegoose/typegoose';
-//import { Types } from 'mongoose';
 import { inject, injectable } from 'inversify';
 import { LocationService, LocationEntity } from './index.js';
 import { Component } from '../../const/index.js';

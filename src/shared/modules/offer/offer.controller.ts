@@ -9,7 +9,8 @@ import {
   ValidateOfferMiddleware,
   ValidateEditingMiddleware,
   ValidateUserIdMiddleware,
-  ValidateDtoMiddleware
+  ValidateDtoMiddleware,
+  PrivateRouteMiddleware
 } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component} from '../../const/index.js';
@@ -25,9 +26,6 @@ import {
 } from './index.js';
 import {UpdateOfferRequest, CreateOfferRequest} from '../../types/index.js';
 import {HttpError} from '../../libs/rest/errors/index.js';
-
-const emailUser = 'Nadya.conner@gmail.com';
-
 
 @injectable()
 export class OfferController extends BaseController {
@@ -48,7 +46,8 @@ export class OfferController extends BaseController {
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
-        new ValidateUserIdMiddleware,
+        new PrivateRouteMiddleware(),
+        new ValidateUserIdMiddleware(),
         new ValidateDtoMiddleware(CreateOfferDto)
       ]
     });
@@ -58,21 +57,11 @@ export class OfferController extends BaseController {
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
-        new ValidateCorrectUserEmailMiddleware({
-          emailUser,
-          userService
-        }),
+        new PrivateRouteMiddleware(),
+        new ValidateCorrectUserEmailMiddleware({userService}),
         new ValidateOfferIdMiddleware('offerId'),
-        new ValidateOfferMiddleware({
-          offerId: 'offerId',
-          offerService
-        }),
-        new ValidateEditingMiddleware({
-          offerId: 'offerId',
-          offerService,
-          emailUser,
-          userService
-        }),
+        new ValidateOfferMiddleware({offerId: 'offerId' ,offerService}),
+        new ValidateEditingMiddleware({offerId: 'offerId', offerService}),
         new ValidateDtoMiddleware(UpdateOfferDto)
       ]
     });
@@ -83,10 +72,7 @@ export class OfferController extends BaseController {
       handler: this.detail,
       middlewares: [
         new ValidateOfferIdMiddleware('offerId'),
-        new ValidateOfferMiddleware({
-          offerId: 'offerId',
-          offerService
-        })
+        new ValidateOfferMiddleware({offerId: 'offerId', offerService})
       ]
     });
 
@@ -95,21 +81,11 @@ export class OfferController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
-        new ValidateCorrectUserEmailMiddleware({
-          emailUser,
-          userService
-        }),
+        new PrivateRouteMiddleware(),
+        new ValidateCorrectUserEmailMiddleware({userService}),
         new ValidateOfferIdMiddleware('offerId'),
-        new ValidateOfferMiddleware({
-          offerId: 'offerId',
-          offerService
-        }),
-        new ValidateEditingMiddleware({
-          offerId: 'offerId',
-          offerService,
-          emailUser,
-          userService
-        })
+        new ValidateOfferMiddleware({offerId: 'offerId', offerService}),
+        new ValidateEditingMiddleware({offerId: 'offerId', offerService})
       ]
     });
     this.addRoute({path: '/premium/:namber', method: HttpMethod.Get, handler: this.indexPremium});
