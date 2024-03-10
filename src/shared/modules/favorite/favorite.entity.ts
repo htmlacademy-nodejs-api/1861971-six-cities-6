@@ -15,7 +15,7 @@ export class FavoriteEntity extends defaultClasses.TimeStamps {
   public offer!: string;
 
   @prop({required: true})
-  public emailUser!: string;
+  public email!: string;
 }
 
 export const FavoriteModel = getModelForClass(FavoriteEntity);

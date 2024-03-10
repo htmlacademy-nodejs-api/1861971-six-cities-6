@@ -9,3 +9,4 @@ export * from './request-body.type.js';
 export * from './update-offer-request.type.js';
 export * from './create-offer-request.type.js';
 export * from './create-user-request.js';
+export * from './login-user-request.type.js';

@@ -6,13 +6,12 @@ import {UserService} from '../../../modules/user/index.js';
 
 export class ValidateCorrectUserEmailMiddleware implements Middleware {
   constructor(private param: {
-    emailUser: string,
     userService: UserService
   }) {}
 
-  public async execute(_req: Request, _res: Response, next: NextFunction): Promise<void> {
-    const {emailUser, userService} = this.param;
-    const existsUser = await userService.findByEmail(emailUser);
+  public async execute({tokenPayload: {email}}: Request, _res: Response, next: NextFunction): Promise<void> {
+    const {userService} = this.param;
+    const existsUser = await userService.findByEmail(email);
 
     if (existsUser) {
       return next();
@@ -20,7 +19,7 @@ export class ValidateCorrectUserEmailMiddleware implements Middleware {
 
     throw new HttpError(
       StatusCodes.CONFLICT,
-      `User with email «${emailUser}» doese not exist.You can not remove this offer.`,
+      `User with email «${email}» doese not exist.You can not remove this offer.`,
       'ValidateUserEmailMiddleware'
     );
   }

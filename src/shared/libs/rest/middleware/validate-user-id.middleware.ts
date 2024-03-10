@@ -5,17 +5,18 @@ import { Middleware } from './middleware.interface.js';
 import { HttpError } from '../errors/index.js';
 
 export class ValidateUserIdMiddleware implements Middleware {
-  public async execute({ body: {dataHost}, params: {userId} }: Request, _res: Response, next: NextFunction): Promise<void> {
+  public async execute({ body, tokenPayload: {id}}: Request, _res: Response, next: NextFunction): Promise<void> {
 
-    const id = dataHost ?? userId;
+    const userId = id;
 
-    if(Types.ObjectId.isValid(id)) {
+    if(Types.ObjectId.isValid(userId)) {
+      body.dataHost = userId;
       return next();
     }
 
     throw new HttpError(
       StatusCodes.FORBIDDEN,
-      `User with id: ${id} unauthorized.`,
+      `User with id: ${userId} unauthorized.`,
       'ValidateUserIdMiddleware'
     );
   }

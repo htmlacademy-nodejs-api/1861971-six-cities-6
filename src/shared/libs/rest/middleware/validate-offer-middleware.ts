@@ -23,7 +23,7 @@ export class ValidateOfferMiddleware implements Middleware {
     throw new HttpError(
       StatusCodes.NOT_FOUND,
       `Offer for identifier ${objectId} does not exist.`,
-      'OfferController / detail'
+      'ValidateOfferMiddleware'
     );
   }
 }
