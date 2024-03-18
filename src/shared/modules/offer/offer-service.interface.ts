@@ -9,5 +9,6 @@ export interface OfferService {
   getOffersList (count: number): Promise<DocumentType<OfferEntity>[] | null>;
   findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   getPremiumOffersList(count: number): Promise<DocumentType<OfferEntity>[] | null>;
+  deleteByIdAll(userId: string): Promise<boolean>;
 }
 
