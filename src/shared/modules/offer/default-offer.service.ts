@@ -13,11 +13,8 @@ export class DefaultOfferService implements OfferService {
     @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>
   ) {}
 
-  public async create(dto: CreateOfferDto, idLocation: string): Promise<DocumentType<OfferEntity>> {
-    const result = await this.offerModel.create({
-      ...dto,
-      coordinates: idLocation
-    });
+  public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
+    const result = await this.offerModel.create(dto);
     this.logger.info(`New offer created: ${dto.title}`);
 
     return result;

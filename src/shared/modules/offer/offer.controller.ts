@@ -103,23 +103,29 @@ export class OfferController extends BaseController {
     { body }: CreateOfferRequest,
     res: Response
   ): Promise<void> {
-    const {dataHost, nameCity} = body;
 
-    const checkAuthorization = await this.userService.findById(dataHost);
+    const checkAuthorization = await this.userService.findById(body.dataHost);
 
     if(!checkAuthorization) {
       throw new HttpError(
         StatusCodes.FORBIDDEN,
-        `User with id: ${dataHost} unauthorized.`,
+        `User with id: ${body.dataHost} unauthorized.`,
         'OfferController'
       );
     }
 
-    const idLocation = await this.locationService.findOrCreate(nameCity);
-
-    const newOffer = await this.offerService.create(body, idLocation);
+    const newOffer = await this.offerService.create(body);
     const offer = await this.offerService.findById(newOffer.id);
-    const responseDataOffer = fillDTO(OfferRdo, offer);
+    const responseDataOffer = fillDTO(
+      OfferRdo,
+      {
+        ...offer,
+        city: {
+          name: offer?.nameCity,
+          location: offer?.coordinates
+        }
+      }
+    );
     this.created(res, responseDataOffer);
   }
 

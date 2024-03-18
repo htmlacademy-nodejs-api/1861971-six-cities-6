@@ -44,5 +44,8 @@ export const CreateOfferValidationMessage = {
   },
   dataHost: {
     invalidId: 'dataHost field must be valid id',
+  },
+  coordinates: {
+    invalidFormat: 'Field coordinates must be an array',
   }
 } as const;
