@@ -59,6 +59,22 @@ export class DefaultOfferService implements OfferService {
       .limit(count)
       .exec();
   }
+
+  public async deleteByIdAll(userId: string): Promise<boolean> {
+    const offersList = await this.offerModel.find({dataHost: userId});
+
+    if(!offersList) {
+      return true;
+    }
+
+    offersList.forEach((offer) => {
+      this.offerModel
+        .findByIdAndDelete(offer.id)
+        .exec();
+    });
+
+    return true;
+  }
 }
 
 

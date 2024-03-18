@@ -6,7 +6,6 @@ import {
   HttpMethod,
   ValidateUserEmailMiddleware,
   ValidateDtoMiddleware,
-  ValidateUserIdMiddleware,
   UploadFileMiddleware,
   PrivateRouteMiddleware,
 } from '../../libs/rest/index.js';
@@ -20,7 +19,8 @@ import {
   UserRdo,
   CreateUserDto,
   LoggedUserRdo,
-  LoginUserDto
+  LoginUserDto,
+  //UploadUserAvatarRdo
 } from './index.js';
 import { Config, RestSchema } from '../../libs/config/index.js';
 import { fillDTO } from '../../helpers/index.js';
@@ -61,7 +61,6 @@ export class UserController extends BaseController {
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
       middlewares: [
-        new ValidateUserIdMiddleware(),
         new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'avatar'),
       ]
     });
@@ -70,6 +69,13 @@ export class UserController extends BaseController {
       path: '/login',
       method: HttpMethod.Get,
       handler: this.checkAuthenticate,
+      middlewares: [new PrivateRouteMiddleware()]
+    });
+
+    this.addRoute({
+      path: '/logout',
+      method: HttpMethod.Delete,
+      handler: this.logoutUser,
       middlewares: [new PrivateRouteMiddleware()]
     });
   }
@@ -94,16 +100,20 @@ export class UserController extends BaseController {
     const user = await this.authService.verify(body);
     const token = await this.authService.authenticate(user);
     const responseData = fillDTO(LoggedUserRdo, {
+      name: user.name,
       email: user.email,
+      avatarUrl: user.avatarUrl,
+      isPro: user.isPro,
       token,
     });
     this.ok(res, responseData);
   }
 
-  public async uploadAvatar(req: Request, res: Response) {
-    this.created(res, {
-      filepath: req.file?.path
-    });
+  public async uploadAvatar({params, file}: Request, res: Response) {
+    const { userId } = params;
+    const uploadFile = { avatarUrl: file?.filename };
+    const user = await this.userService.updateById(userId, uploadFile);
+    this.created(res, fillDTO(UserRdo, user));
   }
 
   public async checkAuthenticate({ tokenPayload: { email }}: Request, res: Response) {
@@ -119,5 +129,19 @@ export class UserController extends BaseController {
 
     const responseDataUser = fillDTO(LoggedUserRdo, foundedUser);
     this.ok(res, responseDataUser);
+  }
+
+  public async logoutUser({tokenPayload: {id, email}}: Request, res: Response) {
+    const deleteUser = await this.userService.deleteUser(id, email);
+
+    if(!deleteUser) {
+      this.send(res, StatusCodes.BAD_REQUEST, {message: 'User are not deleted.'});
+      return;
+    }
+
+    this.noContent(res, {
+      name: deleteUser.name,
+      email: deleteUser.email
+    });
   }
 }
