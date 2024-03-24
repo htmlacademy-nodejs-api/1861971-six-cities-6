@@ -1,7 +1,16 @@
-import { defaultClasses, getModelForClass, prop, modelOptions } from '@typegoose/typegoose';
+import {
+  defaultClasses,
+  getModelForClass,
+  prop,
+  modelOptions
+} from '@typegoose/typegoose';
 import { User } from '../../types/index.js';
 import { createSHA256 } from '../../helpers/index.js';
-import {imageFormats, UserType} from '../../const/index.js';
+import {
+  imageFormats,
+  UserType,
+  DEFAULT_AVATAR_FILE_NAME
+} from '../../const/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface UserEntity extends defaultClasses.Base {}
@@ -21,7 +30,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
   public email: string;
 
   @prop({
-    default: 'img/10.png',
+    default: DEFAULT_AVATAR_FILE_NAME,
     validate: {
       validator: (imegeAvatar: string): string | void => {
         const values = imegeAvatar.split('.');

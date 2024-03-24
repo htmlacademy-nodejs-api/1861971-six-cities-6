@@ -1,7 +1,6 @@
 import {
   MinLength,
   MaxLength,
-  IsDateString,
   IsEnum,
   IsNotEmpty,
   ArrayMinSize,
@@ -11,10 +10,12 @@ import {
   Max,
   IsMongoId,
   IsInt,
-  IsArray
+  IsArray,
+  IsObject
 } from 'class-validator';
 import {NameCity, HousingTypes, ComfortList} from '../../../const/index.js';
 import {CreateOfferValidationMessage} from './create-offer.messages.js';
+import {Location} from '../../../types/index.js';
 
 export class CreateOfferDto {
 
@@ -25,9 +26,6 @@ export class CreateOfferDto {
   @MinLength(20, {message: CreateOfferValidationMessage.description.minLength})
   @MaxLength(1024, {message: CreateOfferValidationMessage.description.maxLength})
   public description: string;
-
-  @IsDateString({message: CreateOfferValidationMessage.date.invalidFormat})
-  public data: string;
 
   @IsEnum(NameCity, {message: CreateOfferValidationMessage.nameCity.invalid})
   public nameCity: string;
@@ -41,10 +39,6 @@ export class CreateOfferDto {
 
   @IsBoolean({message: CreateOfferValidationMessage.isPremium.meaning})
   public isPremium: boolean;
-
-  @Min(1, {message: CreateOfferValidationMessage.rating.meaning})
-  @Max(5, {message: CreateOfferValidationMessage.rating.meaning})
-  public rating: number;
 
   @IsEnum(HousingTypes, {message: CreateOfferValidationMessage.type.invalid})
   public type: string;
@@ -69,4 +63,7 @@ export class CreateOfferDto {
 
   @IsMongoId({message: CreateOfferValidationMessage.dataHost.invalidId})
   public dataHost: string;
+
+  @IsObject({ message: CreateOfferValidationMessage.coordinates.invalidFormat })
+  public coordinates: Location;
 }

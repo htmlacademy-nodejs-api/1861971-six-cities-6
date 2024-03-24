@@ -5,9 +5,15 @@ import { Middleware } from './middleware.interface.js';
 import { HttpError } from '../errors/index.js';
 
 export class ValidateUserIdMiddleware implements Middleware {
-  public async execute({ body, tokenPayload: {id}}: Request, _res: Response, next: NextFunction): Promise<void> {
+  constructor(private param?: string) {}
 
-    const userId = id;
+  public async execute({ body, tokenPayload: {id}, params}: Request, _res: Response, next: NextFunction): Promise<void> {
+    let index = null;
+
+    if(this.param) {
+      index = params[this.param];
+    }
+    const userId = id ?? index;
 
     if(Types.ObjectId.isValid(userId)) {
       body.dataHost = userId;

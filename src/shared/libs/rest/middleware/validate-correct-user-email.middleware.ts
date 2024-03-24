@@ -20,7 +20,7 @@ export class ValidateCorrectUserEmailMiddleware implements Middleware {
     throw new HttpError(
       StatusCodes.CONFLICT,
       `User with email «${email}» doese not exist.You can not remove this offer.`,
-      'ValidateUserEmailMiddleware'
+      'ValidateCorrectUserEmailMiddleware'
     );
   }
 }
