@@ -10,11 +10,12 @@ import {
   Max,
   IsMongoId,
   IsInt,
-  IsArray
+  IsArray,
+  IsObject
 } from 'class-validator';
 import {NameCity, HousingTypes, ComfortList} from '../../../const/index.js';
 import {CreateOfferValidationMessage} from './create-offer.messages.js';
-import {Location} from '../../../types/location.type.js';
+import {Location} from '../../../types/index.js';
 
 export class CreateOfferDto {
 
@@ -63,6 +64,6 @@ export class CreateOfferDto {
   @IsMongoId({message: CreateOfferValidationMessage.dataHost.invalidId})
   public dataHost: string;
 
-  @IsArray({ message: CreateOfferValidationMessage.coordinates.invalidFormat })
+  @IsObject({ message: CreateOfferValidationMessage.coordinates.invalidFormat })
   public coordinates: Location;
 }

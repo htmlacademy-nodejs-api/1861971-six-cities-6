@@ -14,13 +14,12 @@ import {
 } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component} from '../../const/index.js';
+import {FavoriteService} from '../favorite/index.js';
 import { OfferService } from './offer-service.interface.js';
 import {UserService} from '../user/index.js';
-import {LocationService} from '../location/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import {
   OfferRdo,
-  PremiumOfferRdo,
   CreateOfferDto,
   UpdateOfferDto
 } from './index.js';
@@ -33,7 +32,7 @@ export class OfferController extends BaseController {
     @inject(Component.Logger) protected readonly logger: Logger,
     @inject(Component.OfferService) private readonly offerService: OfferService,
     @inject(Component.UserService) private readonly userService: UserService,
-    @inject(Component.LocationService) private readonly locationService: LocationService
+    @inject(Component.FavoriteService) protected readonly favoriteService: FavoriteService,
   ) {
     super(logger);
 
@@ -67,7 +66,7 @@ export class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/:offerId/detail',
+      path: '/description/:offerId',
       method: HttpMethod.Get,
       handler: this.detail,
       middlewares: [
@@ -116,16 +115,7 @@ export class OfferController extends BaseController {
 
     const newOffer = await this.offerService.create(body);
     const offer = await this.offerService.findById(newOffer.id);
-    const responseDataOffer = fillDTO(
-      OfferRdo,
-      {
-        ...offer,
-        city: {
-          name: offer?.nameCity,
-          location: offer?.coordinates
-        }
-      }
-    );
+    const responseDataOffer = fillDTO(OfferRdo, offer);
     this.created(res, responseDataOffer);
   }
 
@@ -145,13 +135,6 @@ export class OfferController extends BaseController {
       );
     }
 
-    const value = offer.nameCity === body.nameCity;
-
-    if(!value && body.nameCity) {
-      const idLocation = await this.locationService.findOrCreate(body.nameCity);
-      body.coordinates = idLocation;
-    }
-
     const updateOffer = await this.offerService.updateById(offerId as string, body);
     const responseData = fillDTO(OfferRdo, updateOffer);
     this.ok(res, responseData);
@@ -167,17 +150,19 @@ export class OfferController extends BaseController {
   }
 
 
-  public async delete({params}: Request, res: Response): Promise<void> {
+  public async delete({params, tokenPayload:{email}}: Request, res: Response): Promise<void> {
     const {offerId} = params;
 
     await this.offerService.deleteById(offerId as string);
+    await this.favoriteService.deleteById(offerId, email);
     this.noContent(res, JSON.stringify({message: `Offer this identifier ${offerId} to delete.`}));
   }
 
-  public async indexPremium({params: {namber}}: Request, res: Response): Promise<void> {
+  public async indexPremium(req: Request, res: Response): Promise<void> {
+    const {params: {namber}, query: {city}} = req;
 
-    const premiumOfferList = await this.offerService.getPremiumOffersList(Number(namber));
-    const responseData = fillDTO(PremiumOfferRdo, premiumOfferList);
+    const premiumOfferList = await this.offerService.getPremiumOffersList(Number(namber), city as string | undefined);
+    const responseData = fillDTO(OfferRdo, premiumOfferList);
     this.ok(res, responseData);
   }
 

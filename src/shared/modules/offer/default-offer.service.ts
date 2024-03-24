@@ -14,7 +14,15 @@ export class DefaultOfferService implements OfferService {
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
-    const result = await this.offerModel.create(dto);
+    const result = await this.offerModel.create({
+      ...dto,
+      data: new Date().toISOString(),
+      rating: 5,
+      city: {
+        name: dto.nameCity,
+        location: dto.coordinates
+      }
+    });
     this.logger.info(`New offer created: ${dto.title}`);
 
     return result;
@@ -38,7 +46,7 @@ export class DefaultOfferService implements OfferService {
       .find()
       .sort({data: -1})
       .limit(count)
-      .populate(['dataHost', 'coordinates'])
+      .populate(['dataHost'])
       .exec();
   }
 
@@ -49,12 +57,28 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public async getPremiumOffersList(count: number): Promise<DocumentType<OfferEntity>[] | null> {
+  public async getPremiumOffersList(count: number, city: string | undefined): Promise<DocumentType<OfferEntity>[] | null> {
     return this.offerModel
-      .find({isPremium: true})
+      .find({isPremium: true, nameCity: city })
       .sort({data: -1})
       .limit(count)
       .exec();
+  }
+
+  public async deleteByIdAll(userId: string): Promise<boolean> {
+    const offersList = await this.offerModel.find({dataHost: userId});
+
+    if(!offersList) {
+      return true;
+    }
+
+    offersList.forEach((offer) => {
+      this.offerModel
+        .findByIdAndDelete(offer.id)
+        .exec();
+    });
+
+    return true;
   }
 }
 

@@ -52,4 +52,19 @@ export class DefaultFavoriteService implements FavoriteService {
       .exec();
   }
 
+  public async deleteByIdAll(email: string): Promise<boolean> {
+    const favoriteOffer = await this.favoriteModel.find({email: email});
+
+    if(!favoriteOffer) {
+      return true;
+    }
+
+    favoriteOffer.forEach((offer) => {
+      this.favoriteModel
+        .findByIdAndDelete(offer.id)
+        .exec();
+    });
+
+    return true;
+  }
 }
