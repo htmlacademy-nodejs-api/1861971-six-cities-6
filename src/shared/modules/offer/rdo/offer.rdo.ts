@@ -1,6 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import {UserRdo} from '../../user/index.js';
-import {LocationRdo} from '../../location/index.js';
+import {Location, City} from '../../../types/index.js';
 
 export class OfferRdo {
   @Expose()
@@ -13,10 +13,7 @@ export class OfferRdo {
   public description: string;
 
   @Expose()
-  public data: string;
-
-  @Expose()
-  public nameCity: string;
+  public city: City;
 
   @Expose()
   public previevImage: string;
@@ -53,9 +50,5 @@ export class OfferRdo {
   public dataHost: Set<UserRdo>;
 
   @Expose()
-  public numberComments: number;
-
-  @Expose()
-  @Type(() => LocationRdo)
-  public coordinates: Set<LocationRdo>;
+  public coordinates: Location;
 }

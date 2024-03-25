@@ -1,7 +1,7 @@
 import { defaultClasses, getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
 import { UserEntity } from '../user/index.js';
-import {LocationEntity} from '../location/index.js';
 import {NameCity, HousingTypes, ComfortList} from '../../const/index.js';
+import {Location, City} from '../../types/index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface OfferEntity extends defaultClasses.Base {}
@@ -38,7 +38,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true, default: false})
   public isFavorite!: boolean;
 
-  @prop({required: true, min: 1, max: 5})
+  @prop({required: true})
   public rating!: number;
 
   @prop({required: true, enum: HousingTypes})
@@ -66,9 +66,11 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true, default: 9})
   public numberComments!: number;
 
-  @prop({required: true, ref: LocationEntity})
-  public coordinates!: Ref<LocationEntity>;
+  @prop({required: true, type: Object})
+  public coordinates!: Location;
 
+  @prop({required: true, type: Object})
+  public city!: City;
 }
 
 export const OfferModel = getModelForClass(OfferEntity);

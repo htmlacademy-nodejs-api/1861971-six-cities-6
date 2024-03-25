@@ -1,7 +1,7 @@
 export enum ComfortList {
   Breakfast = 'Breakfast',
   AirConditioning = 'Air conditioning',
-  LaptopFriendlyWorkspece = 'Laptop friendly workspece',
+  LaptopFriendlyWorkspace = 'Laptop friendly workspace',
   BabySeat = 'Baby seat',
   Washer = 'Washer',
   Towels = 'Towels',
@@ -11,7 +11,7 @@ export enum ComfortList {
 export const Comforts: Record<string, ComfortList> = {
   Breakfast: ComfortList.Breakfast,
   'Air conditioning': ComfortList.AirConditioning,
-  'Laptop friendly workspece': ComfortList.LaptopFriendlyWorkspece,
+  'Laptop friendly workspace': ComfortList.LaptopFriendlyWorkspace,
   'Baby seat': ComfortList.BabySeat,
   Washer: ComfortList.Washer,
   Towels: ComfortList.Towels,

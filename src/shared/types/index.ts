@@ -10,3 +10,5 @@ export * from './update-offer-request.type.js';
 export * from './create-offer-request.type.js';
 export * from './create-user-request.js';
 export * from './login-user-request.type.js';
+export * from './city.js';
+export * from './validation-error-field.type.js';
