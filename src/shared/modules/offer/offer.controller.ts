@@ -52,7 +52,7 @@ export class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/:offerId/redaction',
+      path: '/redaction/:offerId',
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [

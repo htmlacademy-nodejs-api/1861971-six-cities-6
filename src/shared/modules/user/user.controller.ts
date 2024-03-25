@@ -20,7 +20,6 @@ import {
   CreateUserDto,
   LoggedUserRdo,
   LoginUserDto,
-  //UploadUserAvatarRdo
 } from './index.js';
 import { Config, RestSchema } from '../../libs/config/index.js';
 import { fillDTO } from '../../helpers/index.js';

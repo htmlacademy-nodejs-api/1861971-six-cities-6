@@ -48,7 +48,7 @@ export class FavoriteController extends BaseController {
 
     this.addRoute(
       {
-        path: '/:offerId',
+        path: '/append/:offerId',
         method: HttpMethod.Post,
         handler: this.register,
         middlewares: [
@@ -62,7 +62,7 @@ export class FavoriteController extends BaseController {
 
     this.addRoute(
       {
-        path: '/:offerId',
+        path: '/delete/:offerId',
         method: HttpMethod.Delete,
         handler: this.delete,
         middlewares: [
