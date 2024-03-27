@@ -12,3 +12,6 @@ export * from './create-user-request.js';
 export * from './login-user-request.type.js';
 export * from './city.js';
 export * from './validation-error-field.type.js';
+export * from './create-comment.js';
+export * from './setting-parameter-comment.js';
+export * from './create-comment-request.type.js';

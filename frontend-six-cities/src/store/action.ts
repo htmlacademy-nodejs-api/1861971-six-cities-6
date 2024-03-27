@@ -8,11 +8,14 @@ import {
   adapterUserToServer,
   adapterUserToClient,
   adapterOfferToServer,
-  adapterOfferToClient
+  adapterOfferToClient,
+  adapterCommentToClient,
+  adapterCommentToServer
 } from '../adapter/index';
 import {
   UserToClient,
-  OfferToClient
+  OfferToClient,
+  CommentToClient
 } from '../adapter/types/index';
 
 type Extra = {
@@ -120,9 +123,10 @@ export const fetchComments = createAsyncThunk<Comment[], Offer['id'], { extra: E
   Action.FETCH_COMMENTS,
   async (id, { extra }) => {
     const { api } = extra;
-    const { data } = await api.get<Comment[]>(`${ApiRoute.Offers}/${id}${ApiRoute.Comments}`);
+    const { data } = await api.get<CommentToClient[]>(`${ApiRoute.Offers}/${id}${ApiRoute.Comments}?counter=5`);
+    const commentsList = data.map((comment) => adapterCommentToClient(comment));
 
-    return data;
+    return commentsList;
   });
 
 export const fetchUserStatus = createAsyncThunk<User, undefined, { extra: Extra }>(
@@ -192,9 +196,12 @@ export const postComment = createAsyncThunk<Comment, CommentAuth, { extra: Extra
   Action.POST_COMMENT,
   async ({ id, comment, rating }, { extra }) => {
     const { api } = extra;
-    const { data } = await api.post<Comment>(`${ApiRoute.Offers}/${id}${ApiRoute.Comments}`, { comment, rating });
+    const { data } = await api.post<CommentToClient>(
+      `${ApiRoute.Offers}/${id}${ApiRoute.Comments}`,
+      adapterCommentToServer({ comment, rating })
+    );
 
-    return data;
+    return adapterCommentToClient(data);
   });
 
 export const postFavorite = createAsyncThunk<

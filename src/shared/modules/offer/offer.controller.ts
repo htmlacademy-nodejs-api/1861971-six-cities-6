@@ -23,8 +23,17 @@ import {
   CreateOfferDto,
   UpdateOfferDto
 } from './index.js';
-import {UpdateOfferRequest, CreateOfferRequest} from '../../types/index.js';
+import {
+  UpdateOfferRequest,
+  CreateOfferRequest,
+  CreateCommentRequest
+} from '../../types/index.js';
 import {HttpError} from '../../libs/rest/errors/index.js';
+import {
+  CommentService,
+  CommentRdo,
+  CreateCommentDto
+} from '../comment/index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -33,6 +42,7 @@ export class OfferController extends BaseController {
     @inject(Component.OfferService) private readonly offerService: OfferService,
     @inject(Component.UserService) private readonly userService: UserService,
     @inject(Component.FavoriteService) protected readonly favoriteService: FavoriteService,
+    @inject(Component.CommentService) protected readonly commentService: CommentService
   ) {
     super(logger);
 
@@ -87,8 +97,25 @@ export class OfferController extends BaseController {
         new ValidateEditingMiddleware({offerId: 'offerId', offerService})
       ]
     });
+
     this.addRoute({path: '/premium/:namber', method: HttpMethod.Get, handler: this.indexPremium});
+
+    this.addRoute({path: '/:commentId/comments', method: HttpMethod.Get, handler: this.getCommentsList});
+
+    this.addRoute({
+      path: '/:offerId/comments',
+      method: HttpMethod.Post,
+      handler: this.createComment,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateUserIdMiddleware(),
+        new ValidateOfferIdMiddleware('offerId'),
+        new ValidateOfferMiddleware({offerId: 'offerId' ,offerService}),
+        new ValidateDtoMiddleware(CreateCommentDto)
+      ]
+    });
   }
+
 
   public async index(req: Request, res: Response): Promise<void> {
     const {namber} = req.params;
@@ -158,6 +185,7 @@ export class OfferController extends BaseController {
     this.noContent(res, JSON.stringify({message: `Offer this identifier ${offerId} to delete.`}));
   }
 
+
   public async indexPremium(req: Request, res: Response): Promise<void> {
     const {params: {namber}, query: {city}} = req;
 
@@ -166,4 +194,35 @@ export class OfferController extends BaseController {
     this.ok(res, responseData);
   }
 
+
+  public async getCommentsList(req: Request, res: Response): Promise<void> {
+    const {params: {commentId}, query: {counter}} = req;
+    const value = typeof counter !== 'number' ? 50 : counter;
+
+    const commentsList = await this.commentService.getCommentsList({
+      offerId: commentId,
+      counterComment: value
+    }
+    );
+    const responseData = fillDTO(CommentRdo, commentsList);
+    this.ok(res, responseData);
+  }
+
+
+  public async createComment(
+    { params: {offerId}, tokenPayload: {id}, body: {rating, text} }: CreateCommentRequest,
+    res: Response
+  ): Promise<void> {
+
+    const newComment = await this.commentService.create({
+      text: text,
+      data: new Date().toISOString(),
+      rating: rating,
+      authorComment: id,
+      offerId: offerId as string
+    });
+
+    const responseDataComment = fillDTO(CommentRdo, newComment);
+    this.created(res, responseDataComment);
+  }
 }
