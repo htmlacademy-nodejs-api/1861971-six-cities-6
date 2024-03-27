@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { DocumentType } from '@typegoose/typegoose';
 import { Response, Request } from 'express';
+import {StatusCodes} from 'http-status-codes';
 import {
   BaseController,
   HttpMethod,
@@ -10,11 +11,16 @@ import {
   PrivateRouteMiddleware
 } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
-import {FavoriteService, FavoriteRdo} from './index.js';
+import {FavoriteService} from './index.js';
 import {UserService} from '../user/index.js';
-import {OfferService, PremiumOfferRdo, OfferEntity} from '../offer/index.js';
+import {
+  OfferService,
+  OfferEntity,
+  OfferRdo
+} from '../offer/index.js';
 import { Component } from '../../const/index.js';
 import {fillDTO} from '../../helpers/index.js';
+import {HttpError} from '../../libs/rest/errors/index.js';
 
 
 @injectable()
@@ -42,7 +48,7 @@ export class FavoriteController extends BaseController {
 
     this.addRoute(
       {
-        path: '/:offerId/register',
+        path: '/append/:offerId',
         method: HttpMethod.Post,
         handler: this.register,
         middlewares: [
@@ -56,7 +62,7 @@ export class FavoriteController extends BaseController {
 
     this.addRoute(
       {
-        path: '/:offerId/delete',
+        path: '/delete/:offerId',
         method: HttpMethod.Delete,
         handler: this.delete,
         middlewares: [
@@ -84,7 +90,7 @@ export class FavoriteController extends BaseController {
       favoriteOfferList.push(favoriteOffer);
 
       if(favoriteOfferList.length - 1 === array.length - 1) {
-        const responseData = fillDTO(PremiumOfferRdo, favoriteOfferList);
+        const responseData = fillDTO(OfferRdo, favoriteOfferList);
         this.ok(res, responseData);
       }
     });
@@ -102,8 +108,9 @@ export class FavoriteController extends BaseController {
     }
 
     await this.offerService.updateById(offerId, {isFavorite: true});
+    const offer = await this.offerService.findById(offerId);
 
-    const responseData = fillDTO(FavoriteRdo, favoriteOffer);
+    const responseData = fillDTO(OfferRdo, offer);
     this.created(res, responseData);
   }
 
@@ -111,13 +118,17 @@ export class FavoriteController extends BaseController {
     const favoriteOffer = await this.favoriteService.deleteById(offerId, email);
 
     if(!favoriteOffer) {
-      this.ok(res, {message: `Offer with the identifier ${offerId} can't be deleted because it's not in favorites.`});
-      return;
+      throw new HttpError(
+        StatusCodes.NOT_MODIFIED,
+        `Offer with the identifier ${offerId} can't be deleted because it's not in favorites.`,
+        'FavoriteController / function delete'
+      );
     }
 
-    await this.offerService.updateById(offerId, {isFavorite: false});
+    const modifiedOffer = await this.offerService.updateById(offerId, {isFavorite: false});
 
-    this.noContent(res, {message: `Offer this identifier ${offerId} to delete from favorites.`});
+    const responseData = fillDTO(OfferRdo, modifiedOffer);
+    this.ok(res, responseData);
   }
 
 }

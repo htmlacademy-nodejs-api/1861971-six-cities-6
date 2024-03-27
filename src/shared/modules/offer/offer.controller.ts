@@ -14,18 +14,26 @@ import {
 } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component} from '../../const/index.js';
+import {FavoriteService} from '../favorite/index.js';
 import { OfferService } from './offer-service.interface.js';
 import {UserService} from '../user/index.js';
-import {LocationService} from '../location/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import {
   OfferRdo,
-  PremiumOfferRdo,
   CreateOfferDto,
   UpdateOfferDto
 } from './index.js';
-import {UpdateOfferRequest, CreateOfferRequest} from '../../types/index.js';
+import {
+  UpdateOfferRequest,
+  CreateOfferRequest,
+  CreateCommentRequest
+} from '../../types/index.js';
 import {HttpError} from '../../libs/rest/errors/index.js';
+import {
+  CommentService,
+  CommentRdo,
+  CreateCommentDto
+} from '../comment/index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -33,7 +41,8 @@ export class OfferController extends BaseController {
     @inject(Component.Logger) protected readonly logger: Logger,
     @inject(Component.OfferService) private readonly offerService: OfferService,
     @inject(Component.UserService) private readonly userService: UserService,
-    @inject(Component.LocationService) private readonly locationService: LocationService
+    @inject(Component.FavoriteService) protected readonly favoriteService: FavoriteService,
+    @inject(Component.CommentService) protected readonly commentService: CommentService
   ) {
     super(logger);
 
@@ -53,7 +62,7 @@ export class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/:offerId/redaction',
+      path: '/redaction/:offerId',
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
@@ -67,7 +76,7 @@ export class OfferController extends BaseController {
     });
 
     this.addRoute({
-      path: '/:offerId/detail',
+      path: '/description/:offerId',
       method: HttpMethod.Get,
       handler: this.detail,
       middlewares: [
@@ -88,8 +97,25 @@ export class OfferController extends BaseController {
         new ValidateEditingMiddleware({offerId: 'offerId', offerService})
       ]
     });
+
     this.addRoute({path: '/premium/:namber', method: HttpMethod.Get, handler: this.indexPremium});
+
+    this.addRoute({path: '/:commentId/comments', method: HttpMethod.Get, handler: this.getCommentsList});
+
+    this.addRoute({
+      path: '/:offerId/comments',
+      method: HttpMethod.Post,
+      handler: this.createComment,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateUserIdMiddleware(),
+        new ValidateOfferIdMiddleware('offerId'),
+        new ValidateOfferMiddleware({offerId: 'offerId' ,offerService}),
+        new ValidateDtoMiddleware(CreateCommentDto)
+      ]
+    });
   }
+
 
   public async index(req: Request, res: Response): Promise<void> {
     const {namber} = req.params;
@@ -103,21 +129,18 @@ export class OfferController extends BaseController {
     { body }: CreateOfferRequest,
     res: Response
   ): Promise<void> {
-    const {dataHost, nameCity} = body;
 
-    const checkAuthorization = await this.userService.findById(dataHost);
+    const checkAuthorization = await this.userService.findById(body.dataHost);
 
     if(!checkAuthorization) {
       throw new HttpError(
         StatusCodes.FORBIDDEN,
-        `User with id: ${dataHost} unauthorized.`,
+        `User with id: ${body.dataHost} unauthorized.`,
         'OfferController'
       );
     }
 
-    const idLocation = await this.locationService.findOrCreate(nameCity);
-
-    const newOffer = await this.offerService.create(body, idLocation);
+    const newOffer = await this.offerService.create(body);
     const offer = await this.offerService.findById(newOffer.id);
     const responseDataOffer = fillDTO(OfferRdo, offer);
     this.created(res, responseDataOffer);
@@ -139,13 +162,6 @@ export class OfferController extends BaseController {
       );
     }
 
-    const value = offer.nameCity === body.nameCity;
-
-    if(!value && body.nameCity) {
-      const idLocation = await this.locationService.findOrCreate(body.nameCity);
-      body.coordinates = idLocation;
-    }
-
     const updateOffer = await this.offerService.updateById(offerId as string, body);
     const responseData = fillDTO(OfferRdo, updateOffer);
     this.ok(res, responseData);
@@ -161,18 +177,52 @@ export class OfferController extends BaseController {
   }
 
 
-  public async delete({params}: Request, res: Response): Promise<void> {
+  public async delete({params, tokenPayload:{email}}: Request, res: Response): Promise<void> {
     const {offerId} = params;
 
     await this.offerService.deleteById(offerId as string);
+    await this.favoriteService.deleteById(offerId, email);
     this.noContent(res, JSON.stringify({message: `Offer this identifier ${offerId} to delete.`}));
   }
 
-  public async indexPremium({params: {namber}}: Request, res: Response): Promise<void> {
 
-    const premiumOfferList = await this.offerService.getPremiumOffersList(Number(namber));
-    const responseData = fillDTO(PremiumOfferRdo, premiumOfferList);
+  public async indexPremium(req: Request, res: Response): Promise<void> {
+    const {params: {namber}, query: {city}} = req;
+
+    const premiumOfferList = await this.offerService.getPremiumOffersList(Number(namber), city as string | undefined);
+    const responseData = fillDTO(OfferRdo, premiumOfferList);
     this.ok(res, responseData);
   }
 
+
+  public async getCommentsList(req: Request, res: Response): Promise<void> {
+    const {params: {commentId}, query: {counter}} = req;
+    const value = typeof counter !== 'number' ? 50 : counter;
+
+    const commentsList = await this.commentService.getCommentsList({
+      offerId: commentId,
+      counterComment: value
+    }
+    );
+    const responseData = fillDTO(CommentRdo, commentsList);
+    this.ok(res, responseData);
+  }
+
+
+  public async createComment(
+    { params: {offerId}, tokenPayload: {id}, body: {rating, text} }: CreateCommentRequest,
+    res: Response
+  ): Promise<void> {
+
+    const newComment = await this.commentService.create({
+      text: text,
+      data: new Date().toISOString(),
+      rating: rating,
+      authorComment: id,
+      offerId: offerId as string
+    });
+
+    const responseDataComment = fillDTO(CommentRdo, newComment);
+    this.created(res, responseDataComment);
+  }
 }

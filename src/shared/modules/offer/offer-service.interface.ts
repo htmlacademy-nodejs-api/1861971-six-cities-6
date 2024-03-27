@@ -3,11 +3,12 @@ import { DocumentType } from '@typegoose/typegoose';
 import { OfferEntity } from './offer.entity.js';
 
 export interface OfferService {
-  create(dto: CreateOfferDto, idLocation: string): Promise<DocumentType<OfferEntity>>;
+  create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
   updateById(offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null>;
   deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   getOffersList (count: number): Promise<DocumentType<OfferEntity>[] | null>;
   findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
-  getPremiumOffersList(count: number): Promise<DocumentType<OfferEntity>[] | null>;
+  getPremiumOffersList(count: number, city: string | undefined): Promise<DocumentType<OfferEntity>[] | null>;
+  deleteByIdAll(userId: string): Promise<boolean>;
 }
 

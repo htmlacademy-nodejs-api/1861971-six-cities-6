@@ -11,7 +11,7 @@ export const CreateOfferValidationMessage = {
     invalidFormat: 'postDate must be a valid ISO8601 date',
   },
   nameCity: {
-    invalid: 'City name must be Paris, Cologne, Brussele, Amsterdam, Hamburg, Dusseldorf'
+    invalid: 'City name must be Paris, Cologne, Brussels, Amsterdam, Hamburg, Dusseldorf'
   },
   previevImage: {
     notEmpty: 'Add a link to the image',
@@ -44,5 +44,11 @@ export const CreateOfferValidationMessage = {
   },
   dataHost: {
     invalidId: 'dataHost field must be valid id',
+  },
+  coordinates: {
+    invalidFormat: 'Field coordinates must be an object',
+  },
+  city: {
+    invalidFormat: 'Field city must be an object',
   }
 } as const;
